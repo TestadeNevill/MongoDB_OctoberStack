@@ -15,7 +15,7 @@ async function main() {
     try {
         await client.connect();
 
-        await updateAllListingsToHavePropertyType(client)
+        await deleteListingsScrapedBeforeDate(client, new Date("2019-02-15"))
 
 
     } catch (e) {
@@ -26,6 +26,19 @@ async function main() {
 }
 
 main().catch(console.error);
+
+
+
+async function deleteListingsScrapedBeforeDate(client, date) {
+    const result = await client.db("sample_airbnb").collection("listingsAndReviews").deleteMany({ "last_scraped": { $lt: date } });
+
+    console.log(`${result.deletedCount} document(s) was/were deleted`);
+}
+async function deleteListingByName(client, nameOfListing) {
+    const result = await client.db("sample_airbnb").collection("listingsAndReviews").deleteOne({ name: nameOfListing });
+
+    console.log(`${result.deletedCount} document(s) was/were deleted`);
+}
 
 async function updateAllListingsToHavePropertyType(client) {
     const result = await client.db("sample_airbnb").collection("listingsAndReviews").updateMany({ property_type: { $exists: false } },
